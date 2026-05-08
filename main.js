@@ -23,6 +23,8 @@ const btnExportVideo = document.getElementById('btn-export-video');
 const btnExportJson = document.getElementById('btn-export-json');
 const btnImportJson = document.getElementById('btn-import-json');
 const fileImportJson = document.getElementById('file-import-json');
+const presetSelect = document.getElementById('preset-select');
+const btnLoadPreset = document.getElementById('btn-load-preset');
 
 // State
 let isDrawMode = false;
@@ -665,4 +667,60 @@ window.addEventListener('DOMContentLoaded', () => {
 
   updateZoom();
   window.addEventListener('resize', updateZoom);
+
+  // ==== PRESET PLAYS LOADER ====
+  // Fetch the manifest to populate the dropdown
+  fetch('./plays/manifest.json')
+    .then(r => r.json())
+    .then(manifest => {
+      manifest.forEach(play => {
+        const opt = document.createElement('option');
+        opt.value = play.file;
+        opt.textContent = play.name;
+        presetSelect.appendChild(opt);
+      });
+    })
+    .catch(() => console.warn('No preset plays manifest found.'));
+
+  btnLoadPreset.addEventListener('click', () => {
+    const selectedFile = presetSelect.value;
+    if (!selectedFile) return;
+
+    fetch(`./plays/${selectedFile}`)
+      .then(r => r.json())
+      .then(importedFrames => {
+        if (!Array.isArray(importedFrames)) return;
+
+        frames = importedFrames;
+        currentFrameCount = frames.length;
+        currentPlayIndex = 0;
+        isPlaying = false;
+        btnPlay.innerText = "Play Animation";
+        btnPlay.classList.remove('bg-yellow');
+        btnPlay.classList.add('success');
+        btnAddFrame.innerText = `Save Frame (${currentFrameCount})`;
+
+        // Clear existing tokens and re-build from first frame
+        tokensLayer.innerHTML = '';
+        tokenCounter = 0;
+        if (frames.length > 0) {
+          frames[0].forEach(state => {
+            const el = document.createElement('div');
+            el.classList.add('token');
+            el.dataset.type = state.type;
+            el.dataset.number = state.number || '';
+            el.id = state.id;
+            el.innerText = state.number || '';
+            el.style.left = state.left;
+            el.style.top = state.top;
+            tokensLayer.appendChild(el);
+            const numStr = state.id.split('-')[1];
+            if (numStr && !isNaN(parseInt(numStr))) {
+              tokenCounter = Math.max(tokenCounter, parseInt(numStr) + 1);
+            }
+          });
+        }
+      })
+      .catch(() => alert('無法載入此戰術檔！'));
+  });
 });
