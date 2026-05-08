@@ -1,3 +1,26 @@
 [
-  { "name": "預設開場陣型", "file": "default_setup.json" }
+  {
+    "name": "預設開場陣型",
+    "file": "default_setup.json"
+  },
+  {
+    "name": "36",
+    "file": "36.json"
+  },
+  {
+    "name": "8",
+    "file": "8.json"
+  },
+  {
+    "name": "52",
+    "file": "52.json"
+  },
+  {
+    "name": "5",
+    "file": "5.json"
+  },
+  {
+    "name": "c",
+    "file": "c.json"
+  }
 ]
